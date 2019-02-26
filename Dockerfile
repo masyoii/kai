@@ -1,5 +1,8 @@
 FROM python:3
-ADD kai_backd4.py /app/kai_backd4.py
-RUN pip install schedule
-RUN pip install pycurl
-CMD [ "python", "/app/kai_backd4.py" ]
+
+RUN mkdir -p /app /data
+WORKDIR /app
+COPY . /app
+RUN pip install —no-cache-dir -r requirements.txt
+
+ENTRYPOINT [ "python", "kai_backd4.py" ]
