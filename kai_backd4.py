@@ -25,7 +25,7 @@ import time
 import datetime
 import pycurl
 import json
-from io import StringIO
+import cStringIO
 import logging
 
 logging.basicConfig(filename='kai_backd-' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
