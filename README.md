@@ -26,20 +26,32 @@ either version 3 of the License, or any later version.
 ## json recipe detail
 
 line 1 is user pass kai mobile -> 
+
 {"password": -> password mobile kai, "username": -> password mobile kai}
 
 line 2 is passenger data ->
+
 {
   "address": "Gedung IT BRI Jakarta", -> alamat mu ndes, ojo di isi akhirat yo
+  
   "date_return": "20180318", -> your date return -> isi aja kayak dep date
+  
   "dep_date": "20180318", -> your depature date -> tgl keberangkatan
+  
   "des": "CN", -> stasiun tujuan -> untuk kode cek aja di web kai
+  
   "email": "macbook.47@gmail.com", -> email nanti yg nerima notif
+  
   "isreturn": false, -> kalo mau bolak balik
+  
   "name": "Jehan Rachmatika", -> nama yg pesen
+  
   "num_pax_adult": "2", -> jumlah penumpang dewasa -> menentukan jumlah array di penumpang dewasa
+  
   "num_pax_infant": "1", -> jumlah penumang anak -> menentukan jumlah array di penumpang anak, klo 0 gak usah diisi json nya
+  
   "org": "GMR", -> stasiun keberangkatan -> untuk kode cek aja di web kai
+  
   "passenger": { -> data penumpang
     "adult": [ 
       {
@@ -62,13 +74,20 @@ line 2 is passenger data ->
       }
     ]
   },
+  
   "phone": "085111111110", -> no hape pemesan
+  
   "subclass": "X", -> kelas keretanya -> kode bisa di liat di web kai
+  
   "subclass_return": "", -> kelas kereta klo pesen bolak balik
+  
   "train_no": "16", -> kode kereta nya -> kode bisa di liat di web kai
+  
   "train_no_return": 0
+  
 }
 
 line 3 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada bug -> coba2 sendiri aja yes :P
+
 {"seat": "9A","wagon_code": "EKS","wagon_no": "3"},{"seat": "9B","wagon_code": "EKS","wagon_no": "3"}
 
