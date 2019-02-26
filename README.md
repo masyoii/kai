@@ -13,8 +13,10 @@ either version 3 of the License, or any later version.
 1. clone this repo
 2. cd kai_backd
 3. build docker
+
     docker build -t kai_backd .
     
 4. access folder with json data
 5. run script with docker
+    
     docker run --rm -v "$PWD":/data kai_backd 1 0 0 /data/recipe.txt
