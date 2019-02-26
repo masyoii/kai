@@ -26,13 +26,13 @@ either version 3 of the License, or any later version.
 ## json recipe detail
 
 line 1 is user pass kai mobile -> 
-
+```
 {"password": -> password mobile kai, "username": -> password mobile kai}
-
+```
 
 
 line 2 is passenger data ->
-
+```
 {
   "address": "Gedung IT BRI Jakarta", -> alamat mu ndes, ojo di isi akhirat yo
   
@@ -88,10 +88,11 @@ line 2 is passenger data ->
   "train_no_return": 0
   
 }
-
+```
 
 
 line 3 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada bug -> coba2 sendiri aja yes :P
 
+```
 {"seat": "9A","wagon_code": "EKS","wagon_no": "3"},{"seat": "9B","wagon_code": "EKS","wagon_no": "3"}
-
+```
