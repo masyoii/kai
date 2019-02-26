@@ -29,6 +29,8 @@ line 1 is user pass kai mobile ->
 
 {"password": -> password mobile kai, "username": -> password mobile kai}
 
+
+
 line 2 is passenger data ->
 
 {
@@ -86,6 +88,8 @@ line 2 is passenger data ->
   "train_no_return": 0
   
 }
+
+
 
 line 3 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada bug -> coba2 sendiri aja yes :P
 
