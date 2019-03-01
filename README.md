@@ -21,7 +21,7 @@ either version 3 of the License, or any later version.
 5. run script with docker
     ```
     unix    -> docker run --rm -v "$PWD":/data kai_backd 1 0 0 /data/recipe.txt
-    windows -> docker run --rm -v %cd":/data kai_backd 1 0 0 /data/recipe.txt
+    windows -> docker run --rm -v %cd%:/data kai_backd 1 0 0 /data/recipe.txt
     ```
 
 6. profit
