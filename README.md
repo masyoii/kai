@@ -19,8 +19,43 @@ either version 3 of the License, or any later version.
 4. access folder with json data
 5. run script with docker
     
-    docker run --rm -v "$PWD":/data kai_backd 1 0 0 /data/recipe.txt
+    unix    -> docker run --rm -v "$PWD":/data kai_backd 1 0 0 /data/recipe.txt
+    windows -> docker run --rm -v %cd":/data kai_backd 1 0 0 /data/recipe.txt
 
+6. profit
+
+## with katacoda -> free docker playground online
+
+1. open link https://www.katacoda.com/courses/docker/playground
+2. create folder projects
+    ```
+    mkdir projects
+    ```
+3. cd to folder projects
+    ```
+    cd projects
+    ```
+4. git setting to folder projects
+    ```
+    git init
+    ```
+5. pull this repo
+    ```
+    git pull https://github.com/macbook47/kai_backd/
+    ```
+6. edit recipe.txt with your data -> kalau gak tau vi, googling dl aja :P
+    ```
+    vi recipe.txt
+    ```
+7. build docker
+    ```
+    docker build -t kai_backd .
+    ```
+8. run docker
+    ```
+    docker run kai_backd 1 0 0 recipe.txt
+    ```
+9. profit
 
 
 ## json recipe detail
