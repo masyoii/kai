@@ -127,7 +127,6 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
             resCheck = json.loads(r.text)
             logging.info('check set res : ' + str(resCheck))
 
-            # print(resCheck['data'][0]['schedule'])
             if resCheck['status'] == 200:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check availability seat')
                 if(len(resCheck['data'][0]['schedule']) > 0):
@@ -140,6 +139,8 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
                                     break
                                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opp seat full process -> check kursi : ' + str(i['total_seat']))
                             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no train class found')
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no seat found')
+                raise Exception
 
             print('#########################################')
             print('')
