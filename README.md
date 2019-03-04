@@ -5,7 +5,7 @@ It under the terms of the Himacrot License as published by the Secret Software S
 either version 3 of the License, or any later version.
 
 
-    Usage: python kai_backd4.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe
+    Usage: python kai_backd.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe
 
 
 ## with docker
@@ -127,8 +127,15 @@ line 2 is passenger data ->
 }
 ```
 
+line 3 is search seat data ->
 
-line 3 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada bug -> coba2 sendiri aja yes :P
+```
+{"adult": "3","child": 0,"date": "20190321","date_return": "20190321","des": "BD","des_is_city": false,"infant": 0,"isreturn": false,"org": "GMR","org_is_city": false}
+```
+
+
+
+line 4 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada bug -> coba2 sendiri aja yes :P
 
 ```
 {"seat": "9A","wagon_code": "EKS","wagon_no": "3"},{"seat": "9B","wagon_code": "EKS","wagon_no": "3"}

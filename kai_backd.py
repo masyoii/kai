@@ -27,13 +27,14 @@ import pycurl
 import json
 import cStringIO
 import logging
+import requests
 
 logging.basicConfig(filename='kai_backd-' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
 def main():
     print('=======================================================')
-    print('              Nggolek Tiket V2.7')
+    print('              Nggolek Tiket V3.0')
     print('')
     print('This tools used to book ticket smartly')
     print('This program is secret software: you cant redistribute it and/or modify')
@@ -77,16 +78,83 @@ def main():
         linedata = my_file.readlines()
 
     if issetseat == "1":
-        if linedata.count < 3:
+        if linedata.count < 4:
             print("please define json seat data on recipe. Exiting...")
             sys.exit()
 
     if issetseat == "0":
-        linedata[2] = "{}"
+        linedata[3] = "{}"
 
-    kai_booktiket(linedata[0].strip(), linedata[1].strip(), numretry, isusingproxy, issetseat, linedata[2].strip())
+    check_first(linedata[2].strip(), linedata[1].strip(), numretry, isusingproxy)
+
+    if(check_first):
+        kai_booktiket(linedata[0].strip(), linedata[1].strip(), numretry, isusingproxy, issetseat, linedata[3].strip())
 
 
+def check_first(checkdata, bookingdata, numretry, usingproxy):
+    successCheck = False
+    usingproxy = bool(int(usingproxy) > 0)
+    retrylogin = 0
+    maxretrylogin = int(numretry)
+    resCheck = ""
+
+    while retrylogin < maxretrylogin and not successCheck:
+        try:
+            reqcheck = json.loads(bookingdata)
+            print('#########################################')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Trying search seat : ' + str(retrylogin))
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> search seat to kai :')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data search seat to kai :')
+            print(checkdata)
+            # print('#########################################')
+            target = 'https://kaiaccess11.kai.id/api/v12/get_schedule_v3'
+            headers = {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip,deflate',
+                'source': 'mobile',
+                'User-Agent': 'KAI/2.0.4'}
+
+            r = requests.post(target, data=checkdata, headers=headers)
+
+            if r.status_code != 200:
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> opps found error :')
+                print(r.text)
+                logging.warning('error search seat res : rc-> ' + str(r.status_code) + ' err-> ' + r.text)
+                raise Exception
+
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res : ' + str(r.status_code))
+            resCheck = json.loads(r.text)
+            logging.info('check set res : ' + str(resCheck))
+
+            # print(resCheck['data'][0]['schedule'])
+            if resCheck['status'] == 200:
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check availability seat')
+                if(len(resCheck['data'][0]['schedule']) > 0):
+                    for i in resCheck['data'][0]['schedule']:
+                        if i['train_code'] == reqcheck['train_no']:
+                            if i['subclass'] == reqcheck['subclass']:
+                                if i['total_seat'] >= int(reqcheck['num_pax_adult']):
+                                    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' hooray seat found process -> check kursi : ' + str(i['total_seat']))
+                                    successCheck = True
+                                    break
+                                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opp seat full process -> check kursi : ' + str(i['total_seat']))
+                            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no train class found')
+
+            print('#########################################')
+            print('')
+
+        except Exception as err:
+            print(err)
+            # time.sleep(20)
+            retrylogin += 1
+            if retrylogin >= maxretrylogin:
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
+                sys.exit()
+
+    return successCheck
+
+        
 def retry_login(logindata, numretry, usingproxy):
     successlogin = False
     usingproxy = bool(int(usingproxy) > 0)
