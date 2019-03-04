@@ -1,3 +1,4 @@
 {"password": "entut123", "username": "test@gmail.com"}
 {"address":"Gedung IT BRI Jakarta","date_return":"20180616","dep_date":"20180616","des":"YK","email":"macbook.47@gmail.com","isreturn":false,"name":"Faizudin Al","num_pax_adult":"2","num_pax_infant":"1","org":"CN","passenger":{"adult":[{"birthdate":"19000101","id_no":"3201111111110009","mobile":"081111111111","name":"Harry Potter"},{"birthdate":"19000101","id_no":"341111111111003","mobile":"081111111119","name":"Marvolo Riddle"}],"infant":[{"birthdate":"20110326","name":"Dumbbledore"}]},"phone":"08111111121","subclass":"A","subclass_return":"","train_no":"7014","train_no_return":0}
+{"adult": "2","child": 0,"date": "20180616","date_return": "20180616","des": "YK","des_is_city": false,"infant": 0,"isreturn": false,"org": "GMR","org_is_city": false}
 {"seat": "9A","wagon_code": "EKS","wagon_no": "3"},{"seat": "9B","wagon_code": "EKS","wagon_no": "3"}
