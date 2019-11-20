@@ -42,7 +42,7 @@ logging.basicConfig(filename='kai_backd-' + datetime.datetime.now().strftime("%Y
 
 def main():
     print('=======================================================')
-    print('              Nggolek Tiket V3.0.1')
+    print('              Nggolek Tiket V3.0.7')
     print('')
     print('This tools used to book ticket smartly')
     print('This program is secret software: you cant redistribute it and/or modify')
@@ -55,15 +55,15 @@ def main():
     print('=======================================================')
     print('')
 
-    # args = len(sys.argv)
-    # if args < 5:
-    #    print('\nUsage: python ' + str(sys.argv[0]) + ' retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe\n')
-    #    sys.exit()
+    args = len(sys.argv)
+    if args < 5:
+        print('\nUsage: python ' + str(sys.argv[0]) + ' retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe\n')
+        sys.exit()
 
-    numretry = 1  # sys.argv[1]
-    isusingproxy = 1  # sys.argv[2]
-    issetseat = 0  # sys.argv[3]
-    filepath = 'dataKaiPapa21.txt'  # sys.argv[4]
+    numretry = sys.argv[1]
+    isusingproxy = sys.argv[2]
+    issetseat = sys.argv[3]
+    filepath = sys.argv[4]
 
     if not os.path.isfile(filepath):
         print("File path {} does not exist. Exiting...".format(filepath))
