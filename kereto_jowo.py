@@ -37,7 +37,7 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 
-logging.basicConfig(filename='kai_backd-' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='kereto_jowo-' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
     print('the Secret Software Society, either version 3 of the License, or')
     print('any later version.')
     print('')
-    print('Usage: python kai_backd.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe')
+    print('Usage: python kereto_jowo.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe')
     print('')
     print('=======================================================')
     print('')
