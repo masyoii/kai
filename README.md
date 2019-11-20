@@ -5,7 +5,7 @@ It under the terms of the Himacrot License as published by the Secret Software S
 either version 3 of the License, or any later version.
 
 
-    Usage: python kai_backd.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe
+    Usage: python kereto_jowo.py retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe
 
 
 ## with docker
