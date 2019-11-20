@@ -14,14 +14,14 @@ either version 3 of the License, or any later version.
 2. cd kai_backd
 3. build docker
     ```
-    docker build -t kai_backd .
+    docker build -t kereto_jowo .
     ```
     
 4. access folder with json data
 5. run script with docker
     ```
-    unix    -> docker run --rm -v "$PWD":/data kai_backd 1 0 0 /data/recipe.txt
-    windows -> docker run --rm -v %cd%:/data kai_backd 1 0 0 /data/recipe.txt
+    unix    -> docker run --rm -v "$PWD":/data kereto_jowo 1 0 0 /data/recipe.txt
+    windows -> docker run --rm -v %cd%:/data kereto_jowo 1 0 0 /data/recipe.txt
     ```
 
 6. profit
@@ -43,7 +43,7 @@ either version 3 of the License, or any later version.
     ```
 5. pull this repo
     ```
-    git pull https://github.com/macbook47/kai_backd/
+    git pull https://github.com/macbook47/kereto_jowo/
     ```
 6. edit recipe.txt with your data -> kalau gak tau vi, googling dl aja :P
     ```
@@ -51,11 +51,11 @@ either version 3 of the License, or any later version.
     ```
 7. build docker
     ```
-    docker build -t kai_backd .
+    docker build -t kereto_jowo .
     ```
 8. run docker
     ```
-    docker run kai_backd 1 0 0 recipe.txt
+    docker run kereto_jowo 1 0 0 recipe.txt
     ```
 9. profit
 
