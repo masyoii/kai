@@ -64,7 +64,7 @@ either version 3 of the License, or any later version.
 
 line 1 is user pass kai mobile -> 
 ```
-{"password": -> password mobile kai, "username": -> password mobile kai}
+{"email": -> email mobile kai, "password": -> password mobile kai, "platform" :"mobile" -> jangan diganti}
 ```
 
 
@@ -75,7 +75,7 @@ line 2 is passenger data ->
   
   "date_return": "20180318", -> your date return -> isi aja kayak dep date
   
-  "dep_date": "20180318", -> your depature date -> tgl keberangkatan
+  "dep_date": "2018-03-18", -> your depature date -> tgl keberangkatan yyyy-mm-dd
   
   "des": "CN", -> stasiun tujuan -> untuk kode cek aja di web kai
   
@@ -91,28 +91,18 @@ line 2 is passenger data ->
   
   "org": "GMR", -> stasiun keberangkatan -> untuk kode cek aja di web kai
   
-  "passenger": { -> data penumpang
-    "adult": [ 
+  "passenger": [ -> data penumpang
       {
-        "birthdate": "19110101",
-        "id_no": "3201111101110009",
-        "mobile": "085111111110",
+        "idnum": "3201111101110009",
+        "psgtype": "A",
         "name": "harry potter"
       },
       {
-        "birthdate": "19110609",
-        "id_no": "347101010111003",
-        "mobile": "081111111119",
+        "idnum": "347101010111003",
+        "psgtype": "A",
         "name": "marvolo riddle"
       }
-    ],
-    "infant": [
-      {
-        "birthdate": "20110110",
-        "name": "Dumbbledore"
-      }
-    ]
-  },
+  ],
   
   "phone": "085111111110", -> no hape pemesan
   
@@ -130,7 +120,7 @@ line 2 is passenger data ->
 line 3 is search seat data ->
 
 ```
-{"adult": "3","child": 0,"date": "20190321","date_return": "20190321","des": "BD","des_is_city": false,"infant": 0,"isreturn": false,"org": "GMR","org_is_city": false}
+{"adult": "3","child": 0,"date": "2019-03-21","date_return": "20190321","des": "BD","des_is_city": false,"infant": 0,"isreturn": false,"org": "GMR","org_is_city": false}
 ```
 
 
