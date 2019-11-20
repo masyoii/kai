@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 
-(C) Copyright 2018 aphip_uhuy
+(C) Copyright 2019 aphip_uhuy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,12 +29,20 @@ import cStringIO
 import logging
 import requests
 
+from hashlib import md5
+from base64 import b64decode
+from base64 import b64encode
+
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+
 logging.basicConfig(filename='kai_backd-' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
 def main():
     print('=======================================================')
-    print('              Nggolek Tiket V3.0')
+    print('              Nggolek Tiket V3.0.1')
     print('')
     print('This tools used to book ticket smartly')
     print('This program is secret software: you cant redistribute it and/or modify')
@@ -47,15 +55,15 @@ def main():
     print('=======================================================')
     print('')
 
-    args = len(sys.argv)
-    if args < 5:
-        print('\nUsage: python ' + str(sys.argv[0]) + ' retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe\n')
-        sys.exit()
+    # args = len(sys.argv)
+    # if args < 5:
+    #    print('\nUsage: python ' + str(sys.argv[0]) + ' retry_num use_proxy(0 if no, 1 if yes) set_seat(0 if no, 1 if yes) recipe\n')
+    #    sys.exit()
 
-    numretry = sys.argv[1]
-    isusingproxy = sys.argv[2]
-    issetseat = sys.argv[3]
-    filepath = sys.argv[4]
+    numretry = 1  # sys.argv[1]
+    isusingproxy = 1  # sys.argv[2]
+    issetseat = 0  # sys.argv[3]
+    filepath = 'dataKaiPapa21.txt'  # sys.argv[4]
 
     if not os.path.isfile(filepath):
         print("File path {} does not exist. Exiting...".format(filepath))
@@ -88,7 +96,55 @@ def main():
     check_first(linedata[2].strip(), linedata[1].strip(), numretry, isusingproxy)
 
     if(check_first):
-        kai_booktiket(linedata[0].strip(), linedata[1].strip(), numretry, isusingproxy, issetseat, linedata[3].strip())
+        kai_booktiket(linedata[0].strip(), linedata[1].strip(), checkresult, numretry, isusingproxy, issetseat, linedata[3].strip())
+
+
+class AESCipher:
+    def __init__(self, key):
+        self.key = key
+
+    def encrypt(self, data):
+        iv = 'kudalumpingtelek'
+        self.cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return b64encode(self.cipher.encrypt(pad(data.encode('utf-8'), AES.block_size)))
+
+    def decrypt(self, data):
+        raw = b64decode(data)
+        iv = 'kudalumpingtelek'
+        self.cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return unpad(self.cipher.decrypt(raw), AES.block_size)
+
+    def encrypt_object(self, python_obj):
+        new_obj = {}
+        for key, value in python_obj.items():
+            value2 = AESCipher(self.key).compute_attr_value(value, 'enc')
+            new_obj[key] = value2
+        return new_obj
+
+    def decrypt_object(self, enc_python_obj):
+        dec_obj = {}
+        for key, value in enc_python_obj.items():
+            value2 = AESCipher(self.key).compute_attr_value(value, 'dec')
+            dec_obj[key] = value2
+        return dec_obj
+
+    def compute_attr_value(self, value, mode):
+        if type(value) is list:
+            return [self.compute_attr_value(x, mode) for x in value]
+        elif type(value) is dict:
+            dec_obj2 = {}
+            for key, value4 in value.items():
+                if mode == 'dec':
+                    dec_obj2[key] = AESCipher(self.key).decrypt(value4)
+                else:
+                    dec_obj2[key] = AESCipher(self.key).encrypt(value4)
+            return dec_obj2
+        else:
+            if mode == 'dec':
+                value3 = AESCipher(self.key).decrypt(value)
+            else:
+                value3 = AESCipher(self.key).encrypt(value)
+            return value3
 
 
 def check_first(checkdata, bookingdata, numretry, usingproxy):
@@ -97,25 +153,27 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
     retrylogin = 0
     maxretrylogin = int(numretry)
     resCheck = ""
+    pwd = 'telo_pendem_tele'
 
     while retrylogin < maxretrylogin and not successCheck:
         try:
-            reqcheck = json.loads(bookingdata)
+            reqcheck = json.loads(checkdata)
             print('#########################################')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Trying search seat : ' + str(retrylogin))
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> search seat to kai :')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data search seat to kai :')
-            print(checkdata)
-            # print('#########################################')
-            target = 'https://kaiaccess11.kai.id/api/v12/get_schedule_v3'
+
+            target = 'http://midsvc-rtsng.kai.id:8111/rtsngmid/mobile/getscheduleune'
             headers = {
                 'Content-Type': 'application/json;charset=utf-8',
                 'Accept': 'application/json, text/plain, */*',
-                'Accept-Encoding': 'gzip,deflate',
+                'Host': 'midsvc-rtsng.kai.id:8111',
                 'source': 'mobile',
-                'User-Agent': 'KAI/2.0.4'}
+                'User-Agent': 'KAI/2.6.0'}
 
-            r = requests.post(target, data=checkdata, headers=headers)
+            bookdataEncrypt = '{"staorigincode":"' + AESCipher(pwd).encrypt(reqcheck['org']) + '","stadestinationcode":"' + AESCipher(pwd).encrypt(reqcheck['des']) + '","tripdate":"' + AESCipher(pwd).encrypt(reqcheck['date']) + '"}'
+
+            r = requests.post(target, data=bookdataEncrypt, headers=headers)
 
             if r.status_code != 200:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> opps found error :')
@@ -123,25 +181,27 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
                 logging.warning('error search seat res : rc-> ' + str(r.status_code) + ' err-> ' + r.text)
                 raise Exception
 
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res : ' + str(r.status_code))
+            # print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res : ' + str(r.status_code))
             resCheck = json.loads(r.text)
             logging.info('check set res : ' + str(resCheck))
 
-            if resCheck['status'] == 200:
+            if resCheck['code'] == '00':
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check availability seat')
-                if(len(resCheck['data'][0]['schedule']) > 0):
-                    for i in resCheck['data'][0]['schedule']:
-                        if i['train_code'] == reqcheck['train_no']:
+                if(len(resCheck['payload']) > 0):
+                    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check ' + str(len(resCheck['payload'])) + ' train')
+                    for i in resCheck['payload']:
+                        if i['noka'] == reqcheck['train_no']:
                             if i['subclass'] == reqcheck['subclass']:
-                                if i['total_seat'] >= int(reqcheck['num_pax_adult']):
-                                    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' hooray seat found process -> check kursi : ' + str(i['total_seat']))
-                                    successCheck = True
-                                    break
-                                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opp seat full process -> check kursi : ' + str(i['total_seat']))
+                                if i['availability'] >= int(reqcheck['adult']):
+                                    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' hooray seat found process -> check kursi : ' + str(i['availability']))
+                                    global checkresult
+                                    checkresult = i
+                                    return successCheck
+                                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opp seat full process -> check kursi : ' + str(i['availability']))
+                                raise Exception
                             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no train class found')
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no seat found')
                 raise Exception
-
             print('#########################################')
             print('')
 
@@ -155,7 +215,7 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
 
     return successCheck
 
-        
+
 def retry_login(logindata, numretry, usingproxy):
     successlogin = False
     usingproxy = bool(int(usingproxy) > 0)
@@ -169,15 +229,15 @@ def retry_login(logindata, numretry, usingproxy):
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Retrying login no : ' + str(retrylogin))
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> login to kai :')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data login to kai :')
-            print(logindata)
+            # print(logindata)
             # print('#########################################')
             buf = cStringIO.StringIO()
             e = pycurl.Curl()
             e.setopt(
-                e.URL, 'https://kaiaccess11.kai.id/api/v12/auth/login')
+                e.URL, 'http://midsvc-rtsng.kai.id:8111/rtsngmid/cred/signin')
             e.setopt(e.HTTPHEADER, [
-                'Content-Type: 	application/json;charset=utf-8', 'Accept: application/json',
-                'source: mobile', 'User-Agent: okhttp/3.4.1'])
+                'Content-Type: 	application/json;charset=utf-8', 'Host: midsvc-rtsng.kai.id:8111', 'Accept: application/json',
+                'source: mobile', 'User-Agent: okhttp/3.12.1'])
             e.setopt(e.POST, 1)
             e.setopt(
                 e.POSTFIELDS, logindata)
@@ -187,9 +247,9 @@ def retry_login(logindata, numretry, usingproxy):
             e.setopt(e.SSL_VERIFYPEER, 0)
             e.setopt(e.SSL_VERIFYHOST, 0)
             if(usingproxy):
-                e.setopt(e.PROXY, '127.0.0.1')
-                e.setopt(e.PROXYPORT, 9050)
-                e.setopt(e.PROXYTYPE, e.PROXYTYPE_SOCKS5)
+                e.setopt(e.PROXY, 'proxy3.bri.co.id')
+                e.setopt(e.PROXYPORT, 1707)
+                e.setopt(e.PROXYTYPE, e.PROXYTYPE_HTTP)
             e.perform()
 
             if e.getinfo(e.HTTP_CODE) != 200:
@@ -209,7 +269,7 @@ def retry_login(logindata, numretry, usingproxy):
 
         except Exception as err:
             print(err)
-            time.sleep(20)
+            # time.sleep(20)
             retrylogin += 1
             if retrylogin >= maxretrylogin:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
@@ -218,12 +278,13 @@ def retry_login(logindata, numretry, usingproxy):
     return reslogin
 
 
-def booking_class(loginres, logindata, bookingdata, numretry, usingproxy):
+def booking_class(loginres, logindata, bookingdata, checkdata, numretry, usingproxy):
     successbook = False
     usingproxy = bool(int(usingproxy) > 0)
     retrybook = 0
     maxretrybook = int(numretry)
     resbooking = ""
+    pwd = 'telo_pendem_tele'
 
     while retrybook < maxretrybook and not successbook:
         try:
@@ -231,29 +292,58 @@ def booking_class(loginres, logindata, bookingdata, numretry, usingproxy):
             print('#########################################')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data booking to kai :')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data booking to kai ...')
-            tokenhead = loginres['token']
-            print(bookingdata)
+            tokenhead = loginres['payload']
+            reqbook = json.loads(bookingdata)
+            checkdataraw = checkdata
+            # prepare data booking
+            bookdataraw = ('{"propscheduleid":"' + checkdataraw["propscheduleid"] + '",'
+                           '"tripid":"' + checkdataraw['tripid'] + '",'
+                           '"orgid":"' + str(checkdataraw['orgid']) + '",'
+                           '"desid":"' + str(checkdataraw['desid']) + '",'
+                           '"orgcode":"' + checkdataraw['orgcode'] + '",'
+                           '"destcode":"' + checkdataraw['destcode'] + '",'
+                           '"tripdate":"' + checkdataraw['tripdate'] + '",'
+                           '"departdate":"' + checkdataraw['tripdate'] + '",'
+                           '"noka":"' + checkdataraw['noka'] + '",'
+                           '"extrafee":"0",'
+                           '"wagonclasscode":"' + checkdataraw['wagonclasscode'] + '",'
+                           '"wagonclassid":"' + str(checkdataraw['wagonclassid']) + '",'
+                           '"customername":"' + reqbook['name'] + '",'
+                           '"phone":"' + reqbook['phone'] + '",'
+                           '"email":"' + reqbook['email'] + '",'
+                           '"subclass":"' + checkdataraw['subclass'] + '",'
+                           '"totpsgadult":"' + reqbook['num_pax_adult'] + '",'
+                           '"totpsgchild":"0",'
+                           '"totpsginfant":"' + reqbook['num_pax_infant'] + '",'
+                           '"paxes":""'
+                           '}')
+
+            bookdatajson = json.loads(bookdataraw)
+            bookdatajson['paxes'] = reqbook['passenger']
+
+            bookdataEncrypt = json.dumps(AESCipher(pwd).encrypt_object(bookdatajson))
+            # print(bookdataEncrypt)
 
             buf2 = cStringIO.StringIO()
             e2 = pycurl.Curl()
             e2.setopt(
-                e2.URL, 'https://kaiaccess11.kai.id/api/v12/booking_b2b')
+                e2.URL, 'http://midsvc-rtsng.kai.id:8111/rtsngmid/mobile/booking')
             e2.setopt(e2.HTTPHEADER, [
                 'Content-Type: 	application/json;charset=utf-8', 'accept: application/json, text/plain, */*',
-                'authorization: Bearer ' + tokenhead + '',
-                'source: mobile', 'User-Agent: okhttp/3.4.1'])
+                'authorization: Bearer ' + tokenhead + '', 'Host: midsvc-rtsng.kai.id:8111', 'Accept-Encoding: gzip, deflate',
+                'source: mobile', 'User-Agent: okhttp/3.12.1'])
             e2.setopt(e2.POST, 1)
             e2.setopt(
-                e2.POSTFIELDS, bookingdata)
+                e2.POSTFIELDS, bookdataEncrypt)
             e2.setopt(e2.WRITEFUNCTION, buf2.write)
             e2.setopt(e2.VERBOSE, False)
             e2.setopt(e2.CONNECTTIMEOUT, 60)
             e2.setopt(e2.SSL_VERIFYPEER, 0)
             e2.setopt(e2.SSL_VERIFYHOST, 0)
             if(usingproxy):
-                e2.setopt(e2.PROXY, '127.0.0.1')
-                e2.setopt(e2.PROXYPORT, 9050)
-                e2.setopt(e2.PROXYTYPE, e2.PROXYTYPE_SOCKS5)
+                e2.setopt(e2.PROXY, 'proxy3.bri.co.id')
+                e2.setopt(e2.PROXYPORT, 1707)
+                e2.setopt(e2.PROXYTYPE, e2.PROXYTYPE_HTTP)
             e2.perform()
 
             if e2.getinfo(e2.HTTP_CODE) != 200:
@@ -264,8 +354,8 @@ def booking_class(loginres, logindata, bookingdata, numretry, usingproxy):
                     loginres = retry_login(logindata, numretry, usingproxy)
                 raise Exception
 
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> booking res : ' + buf2.getvalue())
             resbooking = json.loads(buf2.getvalue())
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> booking res : ' + resbooking['code'] + '-' + resbooking['message'])
             logging.info('booking res : ' + str(resbooking))
             buf2.close()
             successbook = True
@@ -274,7 +364,7 @@ def booking_class(loginres, logindata, bookingdata, numretry, usingproxy):
 
         except Exception as err:
             print(err)
-            time.sleep(20)
+            # time.sleep(20)
             retrybook += 1
             if retrybook >= maxretrybook:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
@@ -283,47 +373,49 @@ def booking_class(loginres, logindata, bookingdata, numretry, usingproxy):
     return resbooking
 
 
-def payment1_class(loginres, logindata, bookcode, numcode, numretry, usingproxy):
+def payment1_class(loginres, logindata, unitcodepay, paycode, netamount, numretry, usingproxy):
     successpay = False
     usingproxy = bool(int(usingproxy) > 0)
     retrypay = 0
     maxretrypay = int(numretry)
     respay = ""
+    pwd = 'telo_pendem_tele'
 
     while retrypay < maxretrypay and not successpay:
         try:
             print('#########################################')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data payment to kai :')
 
-            datapayment = json.dumps({})
-            # bookcode = resbooking['data']['order']['book_code']
-            # numcode = resbooking['data']['order']['num_code']
-            tokenhead = loginres['token']
+            datapayment = 'paycode=' + paycode + ',paytypecode=ATM,channelcodepay=MAPP,netamount=' + str(netamount) + ',tickettype=R,shiftid=15138,unitcodepay=' + unitcodepay + ',paysource=RTSNG'
+            datapaymentencrypt = AESCipher(pwd).encrypt(datapayment)
+            datasend = '{"data":["' + datapaymentencrypt + '"]}'
+            tokenhead = loginres['payload']
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data payment to kai ...')
 
-            print('booking code : ' + bookcode)
-            print('order code : ' + numcode)
+            print('booking code : ' + unitcodepay)
+            print('order code : ' + paycode)
+            print('net ammount : ' + str(netamount))
 
             buf3 = cStringIO.StringIO()
             e3 = pycurl.Curl()
             e3.setopt(
-                e3.URL, 'https://kaiaccess11.kai.id/api/v12/add_extra_fee?book_code=' + bookcode + '&payment_type=ATM')
+                e3.URL, 'http://midsvc-rtsng.kai.id:8111/rtsngmid/py_service/mobile/checkout')
             e3.setopt(e3.HTTPHEADER, [
                 'Content-Type: 	application/json;charset=utf-8', 'accept: application/json, text/plain, */*',
-                'authorization: Bearer ' + tokenhead + '',
-                'source: mobile', 'User-Agent: okhttp/3.4.1'])
+                'authorization: Bearer ' + tokenhead + '', 'Host: midsvc-rtsng.kai.id:8111', 'Accept-Encoding: gzip, deflate',
+                'source: mobile', 'User-Agent: okhttp/3.12.1'])
             e3.setopt(e3.POST, 1)
             e3.setopt(
-                e3.POSTFIELDS, datapayment)
+                e3.POSTFIELDS, datasend)
             e3.setopt(e3.WRITEFUNCTION, buf3.write)
             e3.setopt(e3.VERBOSE, False)
             e3.setopt(e3.SSL_VERIFYPEER, 0)
             e3.setopt(e3.SSL_VERIFYHOST, 0)
 
             if(usingproxy):
-                e3.setopt(e3.PROXY, '127.0.0.1')
-                e3.setopt(e3.PROXYPORT, 9050)
-                e3.setopt(e3.PROXYTYPE, e3.PROXYTYPE_SOCKS5)
+                e3.setopt(e3.PROXY, 'proxy3.bri.co.id')
+                e3.setopt(e3.PROXYPORT, 1707)
+                e3.setopt(e3.PROXYTYPE, e3.PROXYTYPE_HTTP)
 
             e3.perform()
 
@@ -345,7 +437,7 @@ def payment1_class(loginres, logindata, bookcode, numcode, numretry, usingproxy)
 
         except Exception as err:
             print(err)
-            time.sleep(20)
+            # time.sleep(20)
             retrypay += 1
             if retrypay >= maxretrypay:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
@@ -354,7 +446,7 @@ def payment1_class(loginres, logindata, bookcode, numcode, numretry, usingproxy)
     return respay
 
 
-def flag_class(loginres, logindata, bookcode, numcode, numretry, usingproxy):
+def flag_class(loginres, logindata, commonPaycode, numretry, usingproxy):
     successflag = False
     usingproxy = bool(int(usingproxy) > 0)
     retryflag = 0
@@ -367,27 +459,27 @@ def flag_class(loginres, logindata, bookcode, numcode, numretry, usingproxy):
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data payment flag to kai :')
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data payment flag to kai ...')
 
-            print('booking code : ' + bookcode)
-            print('order code : ' + numcode)
+            print('commonPaye code : ' + commonPaycode)
 
-            tokenhead = loginres['token']
+            tokenhead = loginres['payload']
 
             buf4 = cStringIO.StringIO()
             e4 = pycurl.Curl()
             e4.setopt(
-                e4.URL, 'https://kaiaccess11.kai.id/api/v12/payment/pay?book_code=' + bookcode + '&token=' + tokenhead + '&num_code=' + numcode + '&payment_type=ATM')
+                e4.URL, 'http://midsvc-rtsng.kai.id:8111/rtsngmid/mobile/info/updatepaytype/' + commonPaycode + '/227')
             e4.setopt(e4.HTTPHEADER, [
                 'Content-Type: 	application/json;charset=utf-8', 'accept: application/json, text/plain, */*',
-                'source: mobile', 'User-Agent: okhttp/3.4.1'])
+                'authorization: Bearer ' + tokenhead + '', 'Host: midsvc-rtsng.kai.id:8111', 'Accept-Encoding: gzip, deflate',
+                'source: mobile', 'User-Agent: okhttp/3.12.1'])
             e4.setopt(e4.WRITEFUNCTION, buf4.write)
             e4.setopt(e4.VERBOSE, False)
             e4.setopt(e4.SSL_VERIFYPEER, 0)
             e4.setopt(e4.SSL_VERIFYHOST, 0)
 
             if(usingproxy):
-                e4.setopt(e4.PROXY, '127.0.0.1')
-                e4.setopt(e4.PROXYPORT, 9050)
-                e4.setopt(e4.PROXYTYPE, e4.PROXYTYPE_SOCKS5)
+                e4.setopt(e4.PROXY, 'proxy3.bri.co.id')
+                e4.setopt(e4.PROXYPORT, 1707)
+                e4.setopt(e4.PROXYTYPE, e4.PROXYTYPE_HTTP)
 
             e4.perform()
 
@@ -408,50 +500,9 @@ def flag_class(loginres, logindata, bookcode, numcode, numretry, usingproxy):
             print('#########################################')
             print('')
 
-            print('#########################################')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data payment flag 2 to kai :')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data payment flag 2 to kai ...')
-
-            print('booking code : ' + bookcode)
-            print('order code : ' + numcode)
-
-            tokenhead = loginres['token']
-
-            buf5 = cStringIO.StringIO()
-            e5 = pycurl.Curl()
-            e5.setopt(
-                e5.URL, 'https://kaiaccess11.kai.id/api/v12/order/history/detail?book_code=' + bookcode)
-            e5.setopt(e5.HTTPHEADER, [
-                'Content-Type: 	application/json;charset=utf-8', 'accept: application/json, text/plain, */*',
-                'authorization: Bearer ' + tokenhead + '',
-                'source: mobile', 'User-Agent: okhttp/3.4.1'])
-            e5.setopt(e5.WRITEFUNCTION, buf5.write)
-            e5.setopt(e5.VERBOSE, False)
-            e5.setopt(e5.SSL_VERIFYPEER, 0)
-            e5.setopt(e5.SSL_VERIFYHOST, 0)
-
-            if(usingproxy):
-                e5.setopt(e5.PROXY, '127.0.0.1')
-                e5.setopt(e5.PROXYPORT, 9050)
-                e5.setopt(e5.PROXYTYPE, e5.PROXYTYPE_SOCKS5)
-
-            e5.perform()
-
-            if e5.getinfo(e5.HTTP_CODE) != 200:
-                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> opps found error :')
-                print(buf5.getvalue())
-                buf5.close()
-
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> payment flag 2 res : ' + buf5.getvalue())
-            respayment2flag = json.loads(buf5.getvalue())
-            logging.info('flag2 res : ' + str(respayment2flag))
-            buf5.close()
-            # success = True
-            print('#########################################')
-
         except Exception as err:
             print(err)
-            time.sleep(20)
+            # time.sleep(20)
             retryflag += 1
             if retryflag >= maxretryflag:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
@@ -473,11 +524,9 @@ def seat_class(loginres, logindata, bookcode, numcode, numretry, usingproxy, sea
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data set seat to kai :')
 
             print(seatdata)
-            dataseatjson = '{"book_code": "' + bookcode + '", "passenger":[' + seatdata + ']}'  # json.dumps({"book_code": bookcode, "passenger": [seatdata]})
+            dataseatjson = '{"book_code": "' + bookcode + '", "passenger":[' + seatdata + ']}'
             dataseat = str(dataseatjson)
-            # bookcode = resbooking['data']['order']['book_code']
-            # numcode = resbooking['data']['order']['num_code']
-            tokenhead = loginres['token']
+            tokenhead = loginres['payload']
             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data set seat to kai ...')
 
             print('data seat : ' + dataseat)
@@ -499,9 +548,9 @@ def seat_class(loginres, logindata, bookcode, numcode, numretry, usingproxy, sea
             e6.setopt(e6.SSL_VERIFYHOST, 0)
 
             if(usingproxy):
-                e6.setopt(e6.PROXY, '127.0.0.1')
-                e6.setopt(e6.PROXYPORT, 9050)
-                e6.setopt(e6.PROXYTYPE, e6.PROXYTYPE_SOCKS5)
+                e6.setopt(e6.PROXY, 'proxy3.bri.co.id')
+                e6.setopt(e6.PROXYPORT, 1707)
+                e6.setopt(e6.PROXYTYPE, e6.PROXYTYPE_HTTP)
 
             e6.perform()
 
@@ -523,7 +572,7 @@ def seat_class(loginres, logindata, bookcode, numcode, numretry, usingproxy, sea
 
         except Exception as err:
             print(err)
-            time.sleep(20)
+            # time.sleep(20)
             retryseat += 1
             if retryseat >= maxretryseat:
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' Too many error attempts .. Quiting .. ')
@@ -532,7 +581,7 @@ def seat_class(loginres, logindata, bookcode, numcode, numretry, usingproxy, sea
     return resseat
 
 
-def kai_booktiket(logindata, bookingdata, numretry, usingproxy, setseat, seatdata):
+def kai_booktiket(logindata, bookingdata, checkdata, numretry, usingproxy, setseat, seatdata):
     success = False
     usingproxy = bool(int(usingproxy) > 0)
     retry = 0
@@ -542,19 +591,21 @@ def kai_booktiket(logindata, bookingdata, numretry, usingproxy, setseat, seatdat
         try:
             reslogin = retry_login(logindata, numretry, usingproxy)
 
-            if reslogin['status'] == 200:
-                resbooking = booking_class(reslogin, logindata, bookingdata, numretry, usingproxy)
+            if reslogin['code'] == "00":
+                resbooking = booking_class(reslogin, logindata, bookingdata, checkdata, numretry, usingproxy)
 
-                if resbooking['status'] == 200:
-                    bookcode = resbooking['data']['order']['book_code']
-                    numcode = resbooking['data']['order']['num_code']
+                if resbooking['code'] == "00":
+                    unitcodepay = resbooking['payload']['unitcode']
+                    paycode = resbooking['payload']['paycode']
+                    netamount = resbooking['payload']['netamount']
                     if setseat == "1":
-                        resseat = seat_class(reslogin, logindata, bookcode, numcode, numretry, usingproxy, seatdata)
+                        resseat = seat_class(reslogin, logindata, unitcodepay, paycode, numretry, usingproxy, seatdata)
 
-                    respayment = payment1_class(reslogin, logindata, bookcode, numcode, numretry, usingproxy)
+                    respayment = payment1_class(reslogin, logindata, unitcodepay, paycode, netamount, numretry, usingproxy)
 
-                    if respayment['status'] == 200:
-                        resflag = flag_class(reslogin, logindata, bookcode, numcode, numretry, usingproxy)
+                    if respayment['code'] == "00":
+                        commonPaycode = respayment['payload']['commonPaycode']
+                        resflag = flag_class(reslogin, logindata, commonPaycode, numretry, usingproxy)
 
                         print(resflag)
                         success = True
@@ -562,7 +613,7 @@ def kai_booktiket(logindata, bookingdata, numretry, usingproxy, setseat, seatdat
         except Exception as er:
             print(er)
             # logging.error('Exception : ' + er)
-            time.sleep(20)
+            # time.sleep(20)
             # continue
 
         retry += 1
@@ -570,4 +621,5 @@ def kai_booktiket(logindata, bookingdata, numretry, usingproxy, setseat, seatdat
 
 
 if __name__ == '__main__':
+    checkresult = ''
     main()
