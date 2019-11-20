@@ -49,6 +49,11 @@ either version 3 of the License, or any later version.
     ```
     vi recipe.txt
     ```
+    kalau susah pake vi, bisa install dulu nano -> apt-get install nano
+    ```
+    apt-get install nano
+    nano recipe.txt
+    ```
 7. build docker
     ```
     docker build -t kereto_jowo .
