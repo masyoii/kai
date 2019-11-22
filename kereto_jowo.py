@@ -384,13 +384,13 @@ def payment1_class(loginres, logindata, unitcodepay, paycode, netamount, numretr
     while retrypay < maxretrypay and not successpay:
         try:
             print('#########################################')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data payment to kai :')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data booking phase 2 to kai :')
 
             datapayment = 'paycode=' + paycode + ',paytypecode=ATM,channelcodepay=MAPP,netamount=' + str(netamount) + ',tickettype=R,shiftid=15138,unitcodepay=' + unitcodepay + ',paysource=RTSNG'
             datapaymentencrypt = AESCipher(pwd).encrypt(datapayment)
             datasend = '{"data":["' + datapaymentencrypt + '"]}'
             tokenhead = loginres['payload']
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data payment to kai ...')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data booking phase 2 to kai ...')
 
             print('booking code : ' + unitcodepay)
             print('order code : ' + paycode)
@@ -427,7 +427,7 @@ def payment1_class(loginres, logindata, unitcodepay, paycode, netamount, numretr
                     loginres = retry_login(logindata, numretry, usingproxy)
                 raise Exception
 
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> payment res : ' + buf3.getvalue())
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> booking phase 2 res : ' + buf3.getvalue())
             respay = json.loads(buf3.getvalue())
             logging.info('pay res : ' + str(respay))
             buf3.close()
@@ -456,8 +456,8 @@ def flag_class(loginres, logindata, commonPaycode, numretry, usingproxy):
     while retryflag < maxretryflag and not successflag:
         try:
             print('#########################################')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data payment flag to kai :')
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data payment flag to kai ...')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> sending raw data booking flag to kai :')
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> try sending raw data booking flag to kai ...')
 
             print('commonPaye code : ' + commonPaycode)
 
@@ -491,7 +491,7 @@ def flag_class(loginres, logindata, commonPaycode, numretry, usingproxy):
                     loginres = retry_login(logindata, numretry, usingproxy)
                 raise Exception
 
-            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> payment flag res : ' + buf4.getvalue())
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> booking flag res : ' + buf4.getvalue())
             resflag = buf4.getvalue()
             logging.info('flag res : ' + str(resflag))
             buf4.close()
