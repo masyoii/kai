@@ -181,7 +181,7 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
                 logging.warning('error search seat res : rc-> ' + str(r.status_code) + ' err-> ' + r.text)
                 raise Exception
 
-            # print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res : ' + str(r.status_code))
+            print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res : ' + str(r.status_code))
             resCheck = json.loads(r.text)
             logging.info('check set res : ' + str(resCheck))
 
@@ -197,10 +197,13 @@ def check_first(checkdata, bookingdata, numretry, usingproxy):
                                     global checkresult
                                     checkresult = i
                                     return successCheck
-                                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opp seat full process -> check kursi : ' + str(i['availability']))
+                                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps seat full process -> check kursi : ' + str(i['availability']))
                                 raise Exception
                             print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no train class found')
                 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' opps no seat found')
+                raise Exception
+            else:
+                print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' process -> check res code : ' + str(resCheck['code']) + ' - ' + str(resCheck['message']))
                 raise Exception
             print('#########################################')
             print('')
@@ -243,7 +246,7 @@ def retry_login(logindata, numretry, usingproxy):
                 e.POSTFIELDS, logindata)
             e.setopt(e.WRITEFUNCTION, buf.write)
             e.setopt(e.VERBOSE, False)
-            e.setopt(e.CONNECTTIMEOUT, 60)
+            e.setopt(e.CONNECTTIMEOUT, 20)
             e.setopt(e.SSL_VERIFYPEER, 0)
             e.setopt(e.SSL_VERIFYHOST, 0)
             if(usingproxy):
