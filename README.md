@@ -1,3 +1,10 @@
+# support us
+
+support us to make better tools :
+
+<a href="https://www.patreon.com/bePatron?u=17793626" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
+
+
 # kereto_jowo
 This tools used to book ticket smartly
 This program is secret software: you cant redistribute it and/or modify. 
@@ -135,11 +142,3 @@ line 4 is seat data -> jumlah aray json sesuai dg penumpang dewasa -> masih ada 
 ```
 {"seat": "9A","wagon_code": "EKS","wagon_no": "3"},{"seat": "9B","wagon_code": "EKS","wagon_no": "3"}
 ```
-
-
-
-# support us
-
-support us to make better tools :
-
-<a href="https://www.patreon.com/bePatron?u=17793626" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
