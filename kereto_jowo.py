@@ -250,7 +250,7 @@ def retry_login(logindata, numretry, usingproxy):
             e.setopt(e.SSL_VERIFYPEER, 0)
             e.setopt(e.SSL_VERIFYHOST, 0)
             if(usingproxy):
-                e.setopt(e.PROXY, 'proxy3.bri.co.id')
+                e.setopt(e.PROXY, '127.0.0.1')
                 e.setopt(e.PROXYPORT, 1707)
                 e.setopt(e.PROXYTYPE, e.PROXYTYPE_HTTP)
             e.perform()
@@ -416,7 +416,7 @@ def payment1_class(loginres, logindata, unitcodepay, paycode, netamount, numretr
             e3.setopt(e3.SSL_VERIFYHOST, 0)
 
             if(usingproxy):
-                e3.setopt(e3.PROXY, 'proxy3.bri.co.id')
+                e3.setopt(e3.PROXY, '127.0.0.1')
                 e3.setopt(e3.PROXYPORT, 1707)
                 e3.setopt(e3.PROXYTYPE, e3.PROXYTYPE_HTTP)
 
@@ -551,7 +551,7 @@ def seat_class(loginres, logindata, bookcode, numcode, numretry, usingproxy, sea
             e6.setopt(e6.SSL_VERIFYHOST, 0)
 
             if(usingproxy):
-                e6.setopt(e6.PROXY, 'proxy3.bri.co.id')
+                e6.setopt(e6.PROXY, '127.0.0.1')
                 e6.setopt(e6.PROXYPORT, 1707)
                 e6.setopt(e6.PROXYTYPE, e6.PROXYTYPE_HTTP)
 
