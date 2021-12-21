@@ -1,0 +1,4 @@
+{"email": "masyoii@gmail.com", "password": "513bdGZ72m", "platform":"mobile"}
+{"address":"Pekalongan","date_return":"20220114","dep_date":"2022-01-14","des":"PK","email":"masyoii@gmail.com","isreturn":false,"name":"Yoki Irawan","num_pax_adult":"1","num_pax_infant":"0","org":"GMR","passenger":[{"idnum":"3322103112860024","name":"Yoki Irawan","psgtype":"A"}],"phone":"085640166673","subclass":"A","subclass_return":"","train_no":"78","train_no_return":0}
+{"adult": "1","child": 0,"date": "2022-01-14","date_return": "20220114","des": "PK","des_is_city": false,"infant": 0,"isreturn": false,"org": "GMR","org_is_city": false,"subclass":"A","subclass_return":"","train_no":"78"}
+{"seat": "9A","wagon_code": "EKS","wagon_no": "4"},{"seat": "9B","wagon_code": "EKS","wagon_no": "4"},{"seat": "9C","wagon_code": "EKS","wagon_no": "4"}
